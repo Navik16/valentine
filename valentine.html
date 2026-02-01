@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9a 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            color: #ff5a5f;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container {
+            margin: 30px 0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: #f8f8f8;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 400px;
+            width: auto;
+            height: auto;
+            display: block;
+        }
+
+        .image-placeholder {
+            color: #999;
+            font-size: 1.2rem;
+            padding: 40px;
+        }
+
+        .buttons-container {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            position: relative;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .btn-yes {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            z-index: 10;
+        }
+
+        .btn-yes:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-no {
+            background: linear-gradient(135deg, #95a5a6, #bdc3c7);
+            color: white;
+            position: relative;
+            transition: transform 0.2s ease-out;
+            will-change: transform;
+        }
+
+        /* Modal/Popup Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s ease;
+        }
+
+        .modal-content h2 {
+            color: #ff5a5f;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            color: #333;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(-50px, -50px);
+            }
+            50% {
+                transform: translate(50px, -50px);
+            }
+            75% {
+                transform: translate(-50px, 50px);
+            }
+        }
+
+        .btn-no.moving {
+            animation: bounce 0.5s ease;
+        }
+
+        /* Confetti Styles */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            top: -10px;
+        }
+
+        .confetti-square {
+            width: 10px;
+            height: 10px;
+            background: #ff5a5f;
+        }
+
+        .confetti-circle {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff9a9a;
+        }
+
+        .confetti-rectangle {
+            width: 8px;
+            height: 12px;
+            background: #ffd93d;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(var(--drift)) rotate(var(--rotation));
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Will You Be My Valentine?</h1>
+        
+        <div class="image-container">
+            <div class="image-placeholder">
+                <img src="valentine.jpg" alt="Our Photo">
+            
+            </div>
+        </div>
+
+        <div class="buttons-container">
+            <button class="btn btn-yes" id="yesBtn">Yes</button>
+            <button class="btn btn-no" id="noBtn">No</button>
+        </div>
+    </div>
+
+    <!-- Modal Popup -->
+    <div class="modal" id="modal">
+        <div class="confetti-container" id="confettiContainer"></div>
+        <div class="modal-content">
+            <h2>Yeyyy!</h2>
+            <p>Will call u at 5pm</p>
+        </div>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const modal = document.getElementById('modal');
+        const imageContainer = document.querySelector('.image-container');
+        const buttonsContainer = document.querySelector('.buttons-container');
+
+        // Store original button position
+        let originalNoBtnRect = null;
+        let animationFrameId = null;
+
+        // Initialize original position
+        function updateOriginalPosition() {
+            const rect = noBtn.getBoundingClientRect();
+            const containerRect = buttonsContainer.getBoundingClientRect();
+            originalNoBtnRect = {
+                left: rect.left - containerRect.left,
+                top: rect.top - containerRect.top,
+                width: rect.width,
+                height: rect.height,
+                centerX: rect.left + rect.width / 2,
+                centerY: rect.top + rect.height / 2
+            };
+        }
+
+        // Update position on load and resize
+        window.addEventListener('load', updateOriginalPosition);
+        window.addEventListener('resize', updateOriginalPosition);
+
+        // Smooth movement function using requestAnimationFrame
+        function moveButtonAway(e) {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+
+            animationFrameId = requestAnimationFrame(() => {
+                if (!originalNoBtnRect) {
+                    updateOriginalPosition();
+                }
+
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                
+                // Calculate distance from mouse to button center
+                const deltaX = mouseX - originalNoBtnRect.centerX;
+                const deltaY = mouseY - originalNoBtnRect.centerY;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                
+                // Detection radius - if cursor is within this, button moves
+                const detectionRadius = 150;
+                
+                if (distance < detectionRadius && distance > 0) {
+                    // Calculate how close the cursor is (0 = touching, 1 = at detection radius)
+                    const proximity = 1 - (distance / detectionRadius);
+                    
+                    // Move distance increases as cursor gets closer (max 300px)
+                    const baseMoveDistance = 250;
+                    const maxMoveDistance = 350;
+                    const moveDistance = baseMoveDistance + (proximity * (maxMoveDistance - baseMoveDistance));
+                    
+                    // Calculate angle away from cursor
+                    const angle = Math.atan2(deltaY, deltaX);
+                    
+                    // Move button away from cursor
+                    const newX = Math.cos(angle) * moveDistance;
+                    const newY = Math.sin(angle) * moveDistance;
+                    
+                    noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
+                } else {
+                    // Gradually return to original position if cursor is far
+                    noBtn.style.transform = 'translate(0, 0)';
+                }
+            });
+        }
+
+        // Track mouse movement over the buttons container
+        buttonsContainer.addEventListener('mousemove', moveButtonAway);
+
+        // Reset position when mouse leaves the container
+        buttonsContainer.addEventListener('mouseleave', function() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            noBtn.style.transform = 'translate(0, 0)';
+            originalNoBtnRect = null;
+        });
+
+        // Confetti function
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confettiContainer');
+            const colors = ['#ff5a5f', '#ff9a9a', '#ffd93d', '#6bcf7f', '#4d96ff', '#9b59b6', '#ff6b9d', '#c44569'];
+            const shapes = ['square', 'circle', 'rectangle'];
+            const confettiCount = 200;
+
+            // Clear any existing confetti
+            confettiContainer.innerHTML = '';
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                confetti.className = `confetti confetti-${shape}`;
+                
+                // Random position across the screen width
+                const left = Math.random() * 100;
+                
+                // Random animation duration (2-5 seconds)
+                const duration = 2 + Math.random() * 3;
+                
+                // Random delay (0-1 second)
+                const delay = Math.random() * 1;
+                
+                // Random horizontal drift (100-300px)
+                const drift = (Math.random() - 0.5) * 300;
+                
+                // Random rotation (360-1080 degrees)
+                const rotation = 360 + Math.random() * 720;
+                
+                confetti.style.left = left + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.setProperty('--drift', drift + 'px');
+                confetti.style.setProperty('--rotation', rotation + 'deg');
+                confetti.style.animation = `confetti-fall ${duration}s ${delay}s linear forwards`;
+                
+                confettiContainer.appendChild(confetti);
+            }
+
+            // Remove confetti after animation completes
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 6000);
+        }
+
+        // Show modal when "Yes" is clicked
+        yesBtn.addEventListener('click', function() {
+            modal.classList.add('show');
+            createConfetti();
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+
+        // Allow image upload (optional feature)
+        imageContainer.addEventListener('click', function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        imageContainer.innerHTML = `<img src="${event.target.result}" alt="Our Photo">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        });
+
+        // Add cursor pointer to image container
+        imageContainer.style.cursor = 'pointer';
+    </script>
+</body>
+</html>
+
